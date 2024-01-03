@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>GRACQ Hesbaye - Custom Map Styles</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin="">
+    </script>
+  </head>
+
+  <body>
+    <style>
+      #map { height: 180px; }
+    </style>
+    <div id="map"></div
+
+    <script>
+      var coords = [50.67315742625338, 5.375468482621426]; // the geographic center of our map
+      var initZoomLevel = 13; // the map scale. See: http://wiki.openstreetmap.org/wiki/Zoom_levels
+
+      var map = L.map('map').setView(coords, initZoomLevel);
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+
+    </script>
+  </body>
+
+</html>
