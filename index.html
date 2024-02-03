@@ -15,7 +15,6 @@
       margin: 0;
       overflow: hidden;
     }
-
     html,
     body {
       height: 100%;
@@ -33,6 +32,42 @@
         center: [5.2538, 50.6958], // starting position [lng, lat]
         zoom: 13, // starting zoom
       });
+
+// Initialize a pop-up instance
+const popup = new mapboxgl.Popup({ closeButton: false });
+
+map.on('mousemove', function(e) {
+  const features = map.queryRenderedFeatures(e.point);
+
+  // Filter features to only include those with a non-transparent line color
+  const nonTransparentLineFeatures = features.filter(feature => {
+    const lineColor = feature.layer.paint['line-color'];
+    const layerName = feature.layer.id;
+
+    // Exclude layers with specific names
+    const excludeLayers = ['Highways - case', 'Highways - line', 'road-rail-tracks', 'road-rail'];
+    const isExcluded = excludeLayers.includes(layerName);
+
+    return lineColor && lineColor != 'transparent' && lineColor != 'rgba(0,0,0,0)' && !isExcluded;
+  });
+
+  // Extract information for the first layer with a non-transparent line color
+  const firstNonTransparentLineFeature = nonTransparentLineFeatures[0];
+
+  // Close the pop-up
+  popup.remove();
+
+  // Display pop-up for the first layer
+  if (firstNonTransparentLineFeature) {
+    const layerName = firstNonTransparentLineFeature.layer.id;
+    const lineColor = firstNonTransparentLineFeature.layer.paint['line-color'];
+
+    // Set pop-up content
+    popup.setLngLat(e.lngLat)
+      .setHTML(`<div><strong>${layerName}</strong></div>`)
+      .addTo(map);
+  }
+});
 
     </script>
   </body>
