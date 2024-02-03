@@ -2,6 +2,7 @@
 <html>
 
   <head>
+    <meta charset="UTF-8"> 
     <title>GRACQ Hesbaye - Custom Cycle Map Style</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin="">
@@ -36,6 +37,21 @@
 // Initialize a pop-up instance
 const popup = new mapboxgl.Popup({ closeButton: false });
 
+// Initialize a navigation control with the compass
+const nav = new mapboxgl.NavigationControl();
+map.addControl(nav, 'top-right');
+
+// Example mapping object for layer names to content and image URLs
+const layerContentMap = {
+  'F99c': { text: 'F99c', imageUrl: 'https://securotheque.wallonie.be/files/wp-content/uploads/Signaux/Type%20F%20Indication/F99c-complet-det.png' },
+  'PCS': { text: 'Piste Cyclable Séparée', imageUrl: 'https://securotheque.wallonie.be/files/wp-content/uploads/Signaux/Type%20D%20Obligation/D7-det.png' },
+  'SUL': { text: 'Sens Unique Limité', imageUrl: 'https://securotheque.wallonie.be/files/wp-content/uploads/Signaux/Type%20C%20Interdiction/C1-et-M2-Sul-det.png' },
+  'PCM': { text: 'Piste Cyclable Marquée', imageUrl: 'https://securotheque.wallonie.be/files/wp-content/uploads/Fiches%20th%c3%a9matiques/E%20Am%c3%a9nagements%20usagers%20et%20v%c3%a9hicules/E.3.02.07.001-Photo-1-redim.jpg' },
+  'BCS': { text: 'Bande Cyclable Suggérée', imageUrl: 'https://www.lavenir.net/resizer/GRqVk2J5WPC2aeYClnLuQza4_BU=/1200x800/filters:format(jpeg):focal(507x348:517x338)/cloudfront-eu-central-1.images.arcpublishing.com/ipmgroup/33QERI2W4NA6XOJTQYGZXQP4AU.jpg' },
+  
+  // Add more entries as needed
+};
+
 map.on('mousemove', function(e) {
   const features = map.queryRenderedFeatures(e.point);
 
@@ -45,7 +61,7 @@ map.on('mousemove', function(e) {
     const layerName = feature.layer.id;
 
     // Exclude layers with specific names
-    const excludeLayers = ['Highways - case', 'Highways - line', 'road-rail-tracks', 'road-rail'];
+    const excludeLayers = ['Highways - case', 'Highways - line', 'road-rail-tracks', 'road-rail', 'waterway', 'waterway-shadow'];
     const isExcluded = excludeLayers.includes(layerName);
 
     return lineColor && lineColor != 'transparent' && lineColor != 'rgba(0,0,0,0)' && !isExcluded;
@@ -57,17 +73,35 @@ map.on('mousemove', function(e) {
   // Close the pop-up
   popup.remove();
 
-  // Display pop-up for the first layer
   if (firstNonTransparentLineFeature) {
     const layerName = firstNonTransparentLineFeature.layer.id;
-    const lineColor = firstNonTransparentLineFeature.layer.paint['line-color'];
 
-    // Set pop-up content
-    popup.setLngLat(e.lngLat)
-      .setHTML(`<div><strong>${layerName}</strong></div>`)
-      .addTo(map);
+    // Check if the layerName is in the mapping object
+    if (layerContentMap[layerName]) {
+      const { text, imageUrl } = layerContentMap[layerName];
+
+      // Set pop-up content with text and image
+      popup.setLngLat(e.lngLat)
+        .setHTML(`
+          <div>
+            <center>
+            <strong>${text}</strong>
+            <br>
+            <img src="${imageUrl}" alt="Image" style="max-width: 100%; max-height: 100px;">
+            </center>
+          </div>
+        `)
+        .addTo(map);
+    } else {
+      // Default content if layerName is not in the mapping object
+      popup.setLngLat(e.lngLat)
+        .setHTML(`<div><strong>${layerName}:</strong> No additional information available</div>`)
+        .addTo(map);
+    }
   }
 });
+
+const excludeLayers = ['Highways - case', 'Highways - line', 'road-rail-tracks', 'road-rail', 'waterway', 'waterway-shadow'];
 
     </script>
   </body>
